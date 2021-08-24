@@ -43,9 +43,13 @@ export function getVotes(_prompt: string): i32[] {
     return [0, 0];
 } 
 
-
-
-
+export function getCandidatePair(_prompt: string): string[] {
+    if (CandidatePair.contains(_prompt)) {
+        return CandidatePair.getSome(_prompt);
+    } else {
+        return ['', ''];
+    }
+}
 
 /*****************
  * MODIFY METHOD *

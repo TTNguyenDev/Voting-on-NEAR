@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 
 const PollingStation = props => {
@@ -6,7 +6,54 @@ const PollingStation = props => {
     const [secondCandidateURL, setSecondCandidateURL] = useState('https://img.icons8.com/fluency/48/000000/loading.png');
     const [showResult, setShowResult] = useState(false);
 
+    const [firstCandidateVote, setFirstCandidateVote] = useState('-');
+    const [secondCandidateVote, setSecondCandidateVote] = useState('-');
+
+    useEffect(() => {
+        const getInfo = async () => {
+            //vote count stuff
+            let voteCount = await window.contract.getVotes({
+                _prompt: localStorage.getItem('prompt')
+            });
+            setFirstCandidateVote(voteCount[0]);
+            setSecondCandidateVote(voteCount[1]);
+
+            //image stuff
+            setFirstCandidateURL(
+                await window.contract.getUrl({ _name: localStorage.getItem("Candidate1")})
+            );
+
+            setSecondCandidateURL(
+                await window.contract.getUrl({ _name: localStorage.getItem("Candidate2")})
+            );
+
+            //vote checking stuff
+            let didUserVote = await window.contract.didParticipate({ 
+                _prompt: localStorage.getItem('prompt'),
+                _user: window.accoutId
+            });
+
+            setShowResult(didUserVote);
+
+        }
+        getInfo();
+    }, []);
+    
+    const addVote = async (index) => {
+        await window.contract.addVote({
+            _prompt: localStorage.getItem('prompt'),
+            index: index
+        });
+
+        await window.contract.recordUser({
+            _prompt: localStorage.getItem('prompt'),
+            _user: window.accountId
+        });
+
+        setShowResult(true);
+    }
     return (
+        
         <Container>
             <Row>
                 <Col className='justify-content-center d-flex'>
@@ -37,11 +84,11 @@ const PollingStation = props => {
                                 backgroundColor: '#c4c4c4'
                             }}
                             >
-                                3
+                                {firstCandidateVote} 
                             </div>
                         </Row> : null}
                         <Row style={{ marginTop: '2vh' }} className='justify-content-center d-flex'>
-                            <Button> Vote </Button>
+                            <Button disabled={showResult} onClick={() => addVote(0)}> Vote </Button>
                         </Row>
                     </Container>
                 </Col>
@@ -77,7 +124,6 @@ const PollingStation = props => {
                             style={{
                                 marginTop: '5vh'
                             }}
-                            
                         >
                             <div style={{
                                 display: 'flex',
@@ -87,11 +133,11 @@ const PollingStation = props => {
                                 backgroundColor: '#c4c4c4'
                             }}
                             >
-                                3
+                                {secondCandidateVote} 
                             </div>
                         </Row> : null}
                         <Row style={{ marginTop: '2vh' }} className='justify-content-center d-flex'>
-                            <Button> Vote </Button>
+                            <Button disabled={showResult} onClick={() => addVote(1)}> Vote </Button>
                         </Row>
                     </Container>
                 </Col>

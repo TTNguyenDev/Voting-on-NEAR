@@ -19,6 +19,7 @@ export async function initContract() {
   window.contract = await new Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: [
+        'getCandidatePair',
         'getUrl',
         'didParticipate',
         'getAllPrompt',

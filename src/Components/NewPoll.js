@@ -9,6 +9,29 @@ const NewPoll = props => {
     const candidateImageURL2 = useRef();
 
     const promptRef = useRef();
+
+    const sendToBlockchain = async () => {
+        await window.contract.addUrl({
+            _name: candidateName1.current.value,
+            _url: candidateImageURL1.current.value 
+        });
+
+        await window.contract.addUrl({
+            _name: candidateName2.current.value,
+            _url: candidateImageURL2.current.value 
+        });
+
+        await window.contract.addCandidatePair({
+            _prompt: promptRef.current.value,
+            _firstName: candidateName1.current.value,
+            _secondName: candidateName2.current.value
+        });
+
+        await window.contract.addToPromptArray({
+            _prompt: promptRef.current.value
+        });
+    }
+
     return (
         <Container style={{ marginTop: '10px' }}>
             <Form>
@@ -37,7 +60,7 @@ const NewPoll = props => {
                     <Form.Control ref={promptRef} placeholder='Add prompt'></Form.Control>
                 </Form.Group>    
 
-                <Button variant='primary'>Submit</Button>
+                <Button onClick={sendToBlockchain} variant='primary'>Submit</Button>
             </Form>
 
         </Container>
